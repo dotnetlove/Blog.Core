@@ -1,4 +1,6 @@
-﻿using SqlSugar;
+﻿using Blog.Core.Common;
+using Blog.Core.Common.DB;
+using SqlSugar;
 using System;
 using System.IO;
 
@@ -7,8 +9,8 @@ namespace Blog.Core.Model.Models
     public class MyContext
     {
 
-        private static string _connectionString = File.Exists(@"D:\my-file\dbCountPsw1_1.txt") ? File.ReadAllText(@"D:\my-file\dbCountPsw1_1.txt").Trim() : "server=.;uid=sa;pwd=sa;database=BlogDB";
-        private static DbType _dbType;
+        private static string _connectionString = BaseDBConfig.ConnectionString;
+        private static DbType _dbType = (DbType)BaseDBConfig.DbType;
         private SqlSugarClient _db;
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace Blog.Core.Model.Models
             _db = new SqlSugarClient(new ConnectionConfig()
             {
                 ConnectionString = _connectionString,
-                DbType = DbType.SqlServer,
+                DbType = _dbType,
                 IsAutoCloseConnection = true,
                 IsShardSameThread = false,
                 InitKeyType = InitKeyType.Attribute,//mark

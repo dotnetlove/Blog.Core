@@ -3,7 +3,10 @@
 ![Logo](https://github.com/anjoy8/Blog.Core/blob/master/Blog.Core/wwwroot/logocore.png)
 
 
-从零开始搭建自己的前后端分离【 .NET Core2.1 Api + Vue 2.0 】框架，目前是2.2版本，各个版本见分支。
+从零开始搭建自己的前后端分离【 .NET Core2.1 Api + Vue 2.0 】框架，目前是2.2版本，各个版本见分支(注意其他分支不全，请使用主分支)。
+
+如果你感觉看着这整个项目比较费劲，我单抽出来了几个子Demo，方便学习，项目地址 ：[https://github.com/anjoy8/BlogArti](https://github.com/anjoy8/BlogArti)
+
 
 这只是 .netCore 后端部分，前端部分请看我的另三个Vue工程项目
  
@@ -20,6 +23,12 @@
 
 
 &nbsp;
+
+### 初始项目
+
+![操作流程](https://github.com/anjoy8/Blog.Core/blob/master/Blog.Core/wwwroot/operateFlow.gif)
+
+
 &nbsp;
 
 ## Nuget Packages
@@ -30,6 +39,19 @@
 
 
 关于如何使用，点击这里：https://www.cnblogs.com/laozhang-is-phi/p/10205495.html
+
+&nbsp;
+&nbsp;
+
+## 其他后端框架
+目前一共开源四个框架项目，感兴趣的可以看看
+
+|单层项目|简单仓储框架|仓储+服务+接口|DDD框架|
+|-|-|-|-|
+|CURD+Seed|CURD+Seed+DI|CURD+Seed+DI+AOP等|DDD+EFCore+DI+EventBus等|
+|[NetCore-Sugar-Demo](https://github.com/anjoy8/NetCore-Sugar-Demo)|[Blog.SplRepository.Demo](https://github.com/anjoy8/Blog.SplRepository.Demo)|[Blog.Core](https://github.com/anjoy8/Blog.Core)|[ChristDDD](https://github.com/anjoy8/ChristDDD)|
+| -|[Blog-EFCore-Sqlite](https://github.com/anjoy8/Blog-EFCore-Sqlite)|- | -|
+
 
 &nbsp;
 &nbsp;
@@ -47,28 +69,70 @@ QQ群：867095512
 如果你不想处理这个错误，你可以先把项目卸载，不影响整体运行。
 
 
-2【重要】、项目下载后执行的时候，需要安装Redis服务端，安装和使用说明地址：
-https://www.cnblogs.com/laozhang-is-phi/p/9554210.html#autoid-5-0-0
+2【重要】、项目中，有三个AOP的操作类，分别是Redis缓存切面，memory缓存切面、Log日志切面
+你可以在自定义开关，对其进行是否启用，在 appsettings.json 中的：
+
+    "RedisCaching": {
+      "Enabled": false,
+      "ConnectionString": "127.0.0.1:6319"
+    },
+    "MemoryCachingAOP": {
+      "Enabled": true
+    },
+    "LogoAOP": {
+      "Enabled": false
+    },
 
 
-3【重要+】、系统新增自动化生成数据库，和生成种子数据的功能，
-在Blog.Core层中的 Progrm.cs 中，取消对 DBSeed.SeedAsync(myContext).Wait(); 的注释即可。
+3【重要】、如何你使用Redis，需要安装Redis服务端，安装和使用说明地址：
+https://www.cnblogs.com/laozhang-is-phi/p/9554210.html#autoid-3-4-0
+端口是 6319 ，注意！
 
 
-4、如果你不想用CodeFirst 和种子数据，可以用数据库表结构Sql文件在数据库里执行，
-在Blog.Core 项目下的 wwwroot 文件夹中。
+4【重要+】、系统新增自动化生成数据库，和生成种子数据的功能，
+在Blog.Core层中的 appsettings.json 中开启 SeedDBEnabled：true 即可。
+具体文章请看：《[支持多种数据库 & 快速数据库生成](https://www.cnblogs.com/laozhang-is-phi/p/10718755.html)》。
+
+
+5、如果你不想用CodeFirst 和种子数据，可以用数据库表结构Sql文件在数据库里执行，
+在Blog.Core 项目下的 wwwroot 文件夹中Blog.Core.Table.sql（表结构）、Blog.Core.Table&Data.sql（结构和数据）。
+或者来群里，群文件的是最新的。
+
+
+6、如果想单独查看关于【JWT授权】的相关内容，可以在wwwroot 文件夹中找到【Autho.jwt.rar】，我单拎出来的一个demo。
+
+
+7、项目后期发布的时候可以有两个办法，一种是dotnet的kestrel部署，另一种是 IIS 发布部署，但是在发布的时候，
+因为解耦了，所以会导致无法把 service.dll & repository.dll 拷贝到生成目录下，大家可以采用：
+Blog.Core -> 属性 -> Build Events -> Post-build event command ->>>>
+
+Copy "$(ProjectDir)bin\Debug\netcoreapp2.2\" "$(SolutionDir)Blog.Core\bin\Debug\"
 
 ```
 *********************************************************
 ### 修改数据库连接字符串
 
-1、在Blog.Core.Repository层的sugar 文件夹下 的 BaseDBConfig.cs 中，配置自己的字符串
+注意：修改完数据库连接字符串以后，一定要F6重新编译项目或者重启项目。
+
+1、在Blog.Core层 appsettings.json 中，配置自己的字符串
 ```
-public static string ConnectionString = File.Exists(@"D:\my-file\dbCountPsw1.txt") ? 
-File.ReadAllText(@"D:\my-file\dbCountPsw1.txt").Trim() : "server=.;uid=sa;pwd=sa;database=BlogDB";
+    "SqlServer": {
+      "SqlServerConnection": "Server=.;Database=WMBlogDB;User ID=sa;Password=123;",
+      "ProviderName": "System.Data.SqlClient"
+    },
 ```
 
-2、在Blog.Core.FrameWork层的DbHelper.ttinclude 中，配置自己的字符串
+2、文章中有三个地方用到了数据库连接字符串
+```
+A、系统中使用 Blog.Core.Repository -> BaseDBConfig.cs
+B、Seed数据库 Blog.Core.Model -> MyContext.cs
+C、T4 模板 Blog.Core.FrameWork -> DbHelper.ttinclude
+
+其实针对AB两个情况，只需要配置 appsettings.json 即可
+
+```
+
+3、如果想使用T4模板，在Blog.Core.FrameWork层的DbHelper.ttinclude 中，配置自己的字符串
 ```
 public static readonly string ConnectionString = File.Exists(@"D:\my-file\dbCountPsw2.txt") ? 
 File.ReadAllText(@"D:\my-file\dbCountPsw2.txt").Trim(): "server=.;uid=sa;pwd=sa;database=BlogDB";
@@ -119,7 +183,8 @@ File.ReadAllText(@"D:\my-file\dbCountPsw2.txt").Trim(): "server=.;uid=sa;pwd=sa;
 <li><a id="post_title_link_10287023" href="https://www.cnblogs.com/laozhang-is-phi/p/10287023.html">40 || 完美基于AOP的接口性能分析</a></li>
  <li><a id="post_title_link_10322040" href="https://www.cnblogs.com/laozhang-is-phi/p/10322040.html">41 || Nginx+Github+PM2 快速部署项目(一)</a></li>
 
-
+<li><a href="https://www.cnblogs.com/laozhang-is-phi/p/10462316.html">42&nbsp;</a><a id="post_title_link_9767400" href="https://www.cnblogs.com/laozhang-is-phi/p/9767400.html">║</a><a id="post_title_link_10462316" href="https://www.cnblogs.com/laozhang-is-phi/p/10462316.html"> 完美实现 JWT 滑动授权刷新</a></li>
+<li><a id="post_title_link_10718755" href="https://www.cnblogs.com/laozhang-is-phi/p/10718755.html">43 ║ 支持多种数据库 &amp; 快速数据库生成</a></li>
 
 
 
